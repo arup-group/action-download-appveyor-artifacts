@@ -25,9 +25,6 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
       ? jobs.filter(job => job.name && job.name.toLowerCase() === jobName)
       : jobs
 
-    if (relevantJobs.length === 0)
-      throw Error(`No relevant Jobs: ' + ${relevantJobs.join(',')}`)
-
     const jobId = relevantJobs[0].jobId
 
     actionContext.debug(jobId)

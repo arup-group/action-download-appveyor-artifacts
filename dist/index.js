@@ -1859,8 +1859,6 @@ function isMergable(actionContext) {
             const relevantJobs = jobName
                 ? jobs.filter(job => job.name && job.name.toLowerCase() === jobName)
                 : jobs;
-            if (relevantJobs.length === 0)
-                throw Error(`No relevant Jobs: ' + ${relevantJobs.join(',')}`);
             const jobId = relevantJobs[0].jobId;
             actionContext.debug(jobId);
             const artifacts = yield node_fetch_1.default(`https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts`);
