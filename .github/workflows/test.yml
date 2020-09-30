@@ -21,6 +21,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          projectUrl: 'speckleworks/specklerevitreboot/branch/master'
-          jobName: 'Configuration: Release2019' 
+          projectUrl : 'speckleworks/speckledynamo/branch/master' 
       - run: ls output
