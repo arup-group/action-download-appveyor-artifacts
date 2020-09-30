@@ -1394,25 +1394,6 @@ module.exports = require("os");
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -1424,23 +1405,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = __webpack_require__(186);
-const GitHub = __importStar(__webpack_require__(438));
 const github_1 = __webpack_require__(438);
 const logic_1 = __webpack_require__(197);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core_1.debug('start action');
-            const token = process.env.GITHUB_TOKEN;
-            if (!token)
-                throw ReferenceError('No Token found');
             core_1.debug('attempt to run action');
             yield logic_1.isMergable({
                 debug: core_1.debug,
                 setFailed: core_1.setFailed,
                 getInput: core_1.getInput,
                 setOutput: core_1.setOutput,
-                octokit: GitHub.getOctokit(token),
                 context: github_1.context
             });
         }
@@ -1870,17 +1846,10 @@ const child_process_1 = __webpack_require__(129);
 function isMergable(actionContext) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const authToken = core_1.getInput('authToken');
             const projectUrl = core_1.getInput('projectUrl');
-            if (!authToken)
-                throw Error('API call requires auth token');
             if (!projectUrl)
                 throw Error('API call requires auth token');
-            const projectRequest = yield node_fetch_1.default(`https://ci.appveyor.com/api/projects/${projectUrl}`, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`
-                }
-            });
+            const projectRequest = yield node_fetch_1.default(`https://ci.appveyor.com/api/projects/${projectUrl}`);
             const response = yield projectRequest.json();
             const jobId = response.build.jobs[0].jobId;
             actionContext.debug(jobId || 'no filename');
