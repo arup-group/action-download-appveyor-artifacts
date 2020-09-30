@@ -8,7 +8,6 @@ inputs:
   jobName:
     required: false
     description: 'Name of the job to filter on'
-    default: 'release'
 runs:
   using: 'node12'
   main: 'dist/index.js'
