@@ -2,7 +2,7 @@ import {ActionContext} from './action-context'
 import {getInput} from '@actions/core'
 import fetch from 'node-fetch'
 import {writeFileSync} from 'fs'
-import {spawn} from 'child_process'
+import {execSync} from 'child_process'
 
 export async function isMergable(actionContext: ActionContext): Promise<void> {
   try {
@@ -54,7 +54,7 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
 
     writeFileSync(fileName, file)
 
-    spawn(`7z x -ooutput ${fileName} -r -aoa`)
+    execSync(`7z x -ooutput ${fileName} -r -aoa`)
 
     actionContext.debug('wrote to disk')
   } catch (error) {

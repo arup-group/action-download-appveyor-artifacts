@@ -1896,7 +1896,7 @@ function isMergable(actionContext) {
             const artifact = node_fetch_1.default(`https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts/${fileName}`);
             const file = yield (yield artifact).buffer();
             fs_1.writeFileSync(fileName, file);
-            child_process_1.spawn(`7z x -ooutput ${fileName} -r -aoa`);
+            child_process_1.execSync(`7z x -ooutput ${fileName} -r -aoa`);
             actionContext.debug('wrote to disk');
         }
         catch (error) {

@@ -1,6 +1,8 @@
 const fetch = require('node-fetch')
 const { createReadStream, createWriteStream } = require('fs')
-const { createGunzip } = require('zlib') 
+const { createGunzip } = require('zlib')
+const {spawn} = require('process')
+const { execSync } = require('child_process')
 
 async function run() {
   // const artifact = await fetch(
@@ -11,10 +13,12 @@ async function run() {
   
   // console.log('got file')
 
-  const file = createReadStream('SpeckleRhino-1.6.10.745-wip.rhi')
+  // const file = createReadStream('SpeckleRhino-1.6.10.745-wip.rhi')
 
-  file.pipe(createGunzip())
-      .pipe(createWriteStream('folder'))
+  // file.pipe(createGunzip())
+  //     .pipe(createWriteStream('folder'))
+
+  execSync(`7z x -ooutput SpeckleRhino-1.6.10.745-wip.rhi -r -aoa`)
 }
 
 run()
