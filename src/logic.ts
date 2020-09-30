@@ -3,6 +3,7 @@ import {getInput} from '@actions/core'
 import fetch from 'node-fetch'
 import {writeFileSync} from 'fs'
 import {execSync} from 'child_process'
+import {inspect} from 'util'
 
 const CI_URL = 'https://ci.appveyor.com/api'
 
@@ -16,11 +17,18 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
     const projectRequest = await fetch(`${CI_URL}/projects/${projectUrl}`)
 
     const response = await projectRequest.json()
+    const jobs: {name: string; jobId: string}[] = response.build.jobs
 
-    const jobId = response.build.jobs[0].jobId
+    actionContext.debug(inspect(jobs, true, 10, false))
 
-    if (!jobId)
-      throw Error(`No Jobs found for ${CI_URL}/projects/${projectUrl}`)
+    const relevantJobs = jobName
+      ? jobs.filter(job => job.name && job.name.toLowerCase() === jobName)
+      : jobs
+
+    if (relevantJobs.length === 0)
+      throw Error(`No relevant Jobs: ' + ${relevantJobs.join(',')}`)
+
+    const jobId = relevantJobs[0].jobId
 
     actionContext.debug(jobId)
 
@@ -33,9 +41,11 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
       fileName: string
     }[] = await artifacts.json()
 
+    actionContext.debug(inspect(artifactResponse, true, 10, false))
+
     const fileName = artifactResponse
       .filter(
-        artifact => artifact.name && artifact.name.toLowerCase() === jobName
+        artifact => artifact.name && artifact.name.toLowerCase() === 'release'
       )
       .map(artifact => artifact.fileName)
       .pop()
@@ -51,6 +61,8 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
     const file = await (await artifact).buffer()
 
     writeFileSync(fileName, file)
+
+    actionContext.debug(`wrote ${fileName} to disk`)
 
     execSync(`7z x -ooutput ${fileName} -r -aoa`)
 

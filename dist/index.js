@@ -1843,6 +1843,7 @@ const core_1 = __webpack_require__(186);
 const node_fetch_1 = __importDefault(__webpack_require__(467));
 const fs_1 = __webpack_require__(747);
 const child_process_1 = __webpack_require__(129);
+const util_1 = __webpack_require__(669);
 const CI_URL = 'https://ci.appveyor.com/api';
 function isMergable(actionContext) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1853,14 +1854,20 @@ function isMergable(actionContext) {
             const jobName = core_1.getInput('jobName').toLowerCase();
             const projectRequest = yield node_fetch_1.default(`${CI_URL}/projects/${projectUrl}`);
             const response = yield projectRequest.json();
-            const jobId = response.build.jobs[0].jobId;
-            if (!jobId)
-                throw Error(`No Jobs found for ${CI_URL}/projects/${projectUrl}`);
+            const jobs = response.build.jobs;
+            actionContext.debug(util_1.inspect(jobs, true, 10, false));
+            const relevantJobs = jobName
+                ? jobs.filter(job => job.name && job.name.toLowerCase() === jobName)
+                : jobs;
+            if (relevantJobs.length === 0)
+                throw Error(`No relevant Jobs: ' + ${relevantJobs.join(',')}`);
+            const jobId = relevantJobs[0].jobId;
             actionContext.debug(jobId);
             const artifacts = yield node_fetch_1.default(`https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts`);
             const artifactResponse = yield artifacts.json();
+            actionContext.debug(util_1.inspect(artifactResponse, true, 10, false));
             const fileName = artifactResponse
-                .filter(artifact => artifact.name && artifact.name.toLowerCase() === jobName)
+                .filter(artifact => artifact.name && artifact.name.toLowerCase() === 'release')
                 .map(artifact => artifact.fileName)
                 .pop();
             if (!fileName)
@@ -1869,6 +1876,7 @@ function isMergable(actionContext) {
             const artifact = node_fetch_1.default(`https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts/${fileName}`);
             const file = yield (yield artifact).buffer();
             fs_1.writeFileSync(fileName, file);
+            actionContext.debug(`wrote ${fileName} to disk`);
             child_process_1.execSync(`7z x -ooutput ${fileName} -r -aoa`);
             actionContext.debug('wrote to disk');
         }
