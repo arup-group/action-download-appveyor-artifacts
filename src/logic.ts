@@ -4,21 +4,25 @@ import fetch from 'node-fetch'
 import {writeFileSync} from 'fs'
 import {execSync} from 'child_process'
 
+const CI_URL = 'https://ci.appveyor.com/api'
+
 export async function isMergable(actionContext: ActionContext): Promise<void> {
   try {
     const projectUrl = getInput('projectUrl')
-
     if (!projectUrl) throw Error('API call requires auth token')
 
-    const projectRequest = await fetch(
-      `https://ci.appveyor.com/api/projects/${projectUrl}`
-    )
+    const jobName = getInput('jobName').toLowerCase()
+
+    const projectRequest = await fetch(`${CI_URL}/projects/${projectUrl}`)
 
     const response = await projectRequest.json()
 
     const jobId = response.build.jobs[0].jobId
 
-    actionContext.debug(jobId || 'no filename')
+    if (!jobId)
+      throw Error(`No Jobs found for ${CI_URL}/projects/${projectUrl}`)
+
+    actionContext.debug(jobId)
 
     const artifacts = await fetch(
       `https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts`
@@ -30,7 +34,9 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
     }[] = await artifacts.json()
 
     const fileName = artifactResponse
-      .filter(artifact => artifact.name.toLowerCase() === 'release')
+      .filter(
+        artifact => artifact.name && artifact.name.toLowerCase() === jobName
+      )
       .map(artifact => artifact.fileName)
       .pop()
 
@@ -53,5 +59,3 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
     actionContext.setFailed(error.message)
   }
 }
-
-// curl "https://ci.appveyor.com/api/buildjobs/1yeur1ine0bu36bc/artifacts/SpeckleRhino-1.6.10.745-wip.rhi"

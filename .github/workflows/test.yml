@@ -21,6 +21,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          authToken: 'v2.bngo3nen438pm58fx2n1'
           projectUrl: 'speckleworks/specklerhino/branch/master'
       - run: ls output

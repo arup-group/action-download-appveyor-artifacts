@@ -1843,20 +1843,24 @@ const core_1 = __webpack_require__(186);
 const node_fetch_1 = __importDefault(__webpack_require__(467));
 const fs_1 = __webpack_require__(747);
 const child_process_1 = __webpack_require__(129);
+const CI_URL = 'https://ci.appveyor.com/api';
 function isMergable(actionContext) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const projectUrl = core_1.getInput('projectUrl');
             if (!projectUrl)
                 throw Error('API call requires auth token');
-            const projectRequest = yield node_fetch_1.default(`https://ci.appveyor.com/api/projects/${projectUrl}`);
+            const jobName = core_1.getInput('jobName').toLowerCase();
+            const projectRequest = yield node_fetch_1.default(`${CI_URL}/projects/${projectUrl}`);
             const response = yield projectRequest.json();
             const jobId = response.build.jobs[0].jobId;
-            actionContext.debug(jobId || 'no filename');
+            if (!jobId)
+                throw Error(`No Jobs found for ${CI_URL}/projects/${projectUrl}`);
+            actionContext.debug(jobId);
             const artifacts = yield node_fetch_1.default(`https://ci.appveyor.com/api/buildjobs/${jobId}/artifacts`);
             const artifactResponse = yield artifacts.json();
             const fileName = artifactResponse
-                .filter(artifact => artifact.name.toLowerCase() === 'release')
+                .filter(artifact => artifact.name && artifact.name.toLowerCase() === jobName)
                 .map(artifact => artifact.fileName)
                 .pop();
             if (!fileName)
@@ -1874,7 +1878,6 @@ function isMergable(actionContext) {
     });
 }
 exports.isMergable = isMergable;
-// curl "https://ci.appveyor.com/api/buildjobs/1yeur1ine0bu36bc/artifacts/SpeckleRhino-1.6.10.745-wip.rhi"
 
 
 /***/ }),
