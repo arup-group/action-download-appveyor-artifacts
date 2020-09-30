@@ -23,5 +23,4 @@ jobs:
         with:
           authToken: 'v2.bngo3nen438pm58fx2n1'
           projectUrl: 'speckleworks/specklerhino/branch/master'
-        env:
-          GITHUB_TOKEN: 'foo'
+      - run: ls output

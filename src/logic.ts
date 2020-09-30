@@ -6,20 +6,12 @@ import {execSync} from 'child_process'
 
 export async function isMergable(actionContext: ActionContext): Promise<void> {
   try {
-    const authToken = getInput('authToken')
     const projectUrl = getInput('projectUrl')
-
-    if (!authToken) throw Error('API call requires auth token')
 
     if (!projectUrl) throw Error('API call requires auth token')
 
     const projectRequest = await fetch(
-      `https://ci.appveyor.com/api/projects/${projectUrl}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        }
-      }
+      `https://ci.appveyor.com/api/projects/${projectUrl}`
     )
 
     const response = await projectRequest.json()
