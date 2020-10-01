@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Download AppVeyor Artifact'
+description: 'Download an Artifact'
+author: 'peterjgrainger'
 inputs:
   projectUrl: # change this
     required: true
@@ -8,6 +8,10 @@ inputs:
   jobName:
     required: false
     description: 'Name of the job to filter on'
+  outputDirectory:
+    required: false
+    description: 'Where to store the uncompressed artifact'
+    default: output
 runs:
   using: 'node12'
   main: 'dist/index.js'

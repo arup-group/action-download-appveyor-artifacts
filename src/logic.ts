@@ -13,6 +13,7 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
     if (!projectUrl) throw Error('API call requires auth token')
 
     const jobName = getInput('jobName').toLowerCase()
+    const outputDirectory = getInput('outputDirectory')
 
     const projectRequest = await fetch(`${CI_URL}/projects/${projectUrl}`)
 
@@ -61,7 +62,7 @@ export async function isMergable(actionContext: ActionContext): Promise<void> {
 
     actionContext.debug(`wrote ${fileName} to disk`)
 
-    execSync(`7z x -ooutput ${fileName} -r -aoa`)
+    execSync(`7z x -o${outputDirectory} ${fileName} -r -aoa`)
 
     actionContext.debug('wrote to disk')
   } catch (error) {

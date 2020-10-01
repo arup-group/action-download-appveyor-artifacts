@@ -1852,6 +1852,7 @@ function isMergable(actionContext) {
             if (!projectUrl)
                 throw Error('API call requires auth token');
             const jobName = core_1.getInput('jobName').toLowerCase();
+            const outputDirectory = core_1.getInput('outputDirectory');
             const projectRequest = yield node_fetch_1.default(`${CI_URL}/projects/${projectUrl}`);
             const response = yield projectRequest.json();
             const jobs = response.build.jobs;
@@ -1875,7 +1876,7 @@ function isMergable(actionContext) {
             const file = yield (yield artifact).buffer();
             fs_1.writeFileSync(fileName, file);
             actionContext.debug(`wrote ${fileName} to disk`);
-            child_process_1.execSync(`7z x -ooutput ${fileName} -r -aoa`);
+            child_process_1.execSync(`7z x -o${outputDirectory} ${fileName} -r -aoa`);
             actionContext.debug('wrote to disk');
         }
         catch (error) {
